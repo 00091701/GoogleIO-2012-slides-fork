@@ -6,11 +6,22 @@ import jinja2
 import markdown
 
 def process_slides():
-  with codecs.open('../../presentation-output.html', 'w', encoding='utf8') as outfile:
+    # load template
+    template = jinja2.Template(open('base.html').read())
+
+    # load slides
     md = codecs.open('slides.md', encoding='utf8').read()
     md_slides = md.split('\n---\n')
     print 'Compiled %s slides.' % len(md_slides)
 
+    # render slides
+    outSlides = render_slides(template, md_slides)
+
+    # write content
+    with codecs.open('../../presentation-output.html', 'w', encoding='utf8') as outfile:
+        outfile.write(outSlides)
+
+def render_slides(template, md_slides):
     slides = []
     # Process each slide separately.
     for md_slide in md_slides:
@@ -29,9 +40,7 @@ def process_slides():
 
       slides.append(slide)
 
-    template = jinja2.Template(open('base.html').read())
-
-    outfile.write(template.render(locals()))
+    return template.render(locals())
 
 def parse_metadata(section):
   """Given the first part of a slide, returns metadata associated with it."""
